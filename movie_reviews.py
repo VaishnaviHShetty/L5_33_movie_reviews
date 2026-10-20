@@ -1,9 +1,11 @@
 import hashlib
-import random
+import os
+import secrets
 
-STREAM_HOST = "0.0.0.0"
-STREAM_PORT = 8000
-MODERATOR_PASSWORD = "reviews-demo"
+STREAM_HOST = os.environ.get("STREAM_HOST", "127.0.0.1")
+STREAM_PORT = int(os.environ.get("STREAM_PORT", "8000"))
+MODERATOR_PASSWORD = os.environ.get("MODERATOR_PASSWORD", "")
+
 movies = {}
 featured = None
 
@@ -38,12 +40,14 @@ def topMovies(count=2):
 
 def pickFeatured():
     global featured
-    featured = random.choice(sorted(movies))
+    featured = secrets.choice(sorted(movies))
     return featured
 
 
 def reviewId(title, reviewText):
-    return hashlib.md5((title + reviewText).encode()).hexdigest()[:10]
+    return hashlib.md5(  # non-security use: short display id
+        (title + reviewText).encode(), usedforsecurity=False).hexdigest()[:10]
+
 
 def printAllReviews():
     titles = list(movies)
